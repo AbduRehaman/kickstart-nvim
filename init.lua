@@ -89,6 +89,48 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- uv setup pyrightconfig.json
+
+vim.keymap.set('n', '<leader>cppython', function()
+  require('custom.utils.pyright_uv').setup_uv_pyright()
+end, { desc = 'Create uv Python venv + pyrightconfig' })
+
+-- tmux webbrowser
+
+local function urlencode(str)
+  return str:gsub(' ', '+')
+end
+
+vim.keymap.set('n', '<leader>og', function()
+  local query = vim.fn.input '🔍 Search Google: '
+  if query ~= '' then
+    local url = 'https://www.google.com/search?q=' .. urlencode(query)
+
+    -- Visible tmux split that opens browser and waits
+    vim.fn.system {
+      'tmux',
+      'split-window',
+      '-v',
+      "open '" .. url .. "'; echo '🔗 Opened in browser. Press any key...'; read",
+    }
+  end
+end, { desc = 'Google search from Neovim in browser via tmux' })
+
+-- terminal open horizontally below
+
+vim.keymap.set('n', '<leader>t', function()
+  -- Save current window to return later
+  local cur_win = vim.api.nvim_get_current_win()
+
+  -- Open terminal in horizontal split at the bottom
+  vim.cmd 'botright split'
+  vim.cmd 'terminal'
+  vim.cmd 'startinsert'
+
+  -- Optional: go back to previous window (uncomment below if desired)
+  -- vim.api.nvim_set_current_win(cur_win)
+end, { desc = 'Open terminal in bottom horizontal split' })
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -808,7 +850,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'retrobox'
     end,
   },
 

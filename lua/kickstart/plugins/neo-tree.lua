@@ -14,15 +14,26 @@ return {
     { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
+    close_if_last_window = true,
+    enable_git_status = true,
+    enable_diagnostics = false,
     filesystem = {
       filtered_items = {
-        visible = true,
+        visible = true, -- Show filtered items (dotfiles, etc.)
         hide_dotfiles = false,
         hide_gitignored = false,
       },
+      follow_current_file = {
+        enabled = true, -- Keep Neo-tree in sync with current file
+      },
+      bind_to_cwd = true,
+      use_libuv_file_watcher = true, -- Auto-refresh on file changes
       window = {
         mappings = {
-          ['\\'] = 'close_window',
+          ['<CR>'] = 'open', -- Enter opens file in buffer
+          ['\\'] = 'close_window', -- \ closes Neo-tree
+          ['v'] = 'open_vsplit', -- v splits file vertically
+          ['s'] = 'open_split', -- s splits file horizontally
           ['y'] = function(state)
             local node = state.tree:get_node()
             local path = node.path or node:get_id()
