@@ -175,6 +175,33 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Jupyter Notebook Support
+-- Auto-convert ipynb to .py when opening
+vim.api.nvim_create_autocmd('BufReadPost', {
+  pattern = '*.ipynb',
+  callback = function()
+    local ipynb = vim.fn.expand '%'
+    local pyfile = ipynb:gsub('%.ipynb$', '.py')
+    -- Convert to .py and open
+    vim.fn.jobstart({ 'jupytext', '--to', 'py:percent', '--sync', ipynb }, {
+      on_exit = function()
+        vim.schedule(function()
+          vim.cmd('edit ' .. pyfile)
+        end)
+      end,
+    })
+  end,
+})
+
+-- Auto-sync .py back to ipynb on save
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '*.py',
+  callback = function()
+    local pyfile = vim.fn.expand '%'
+    vim.fn.jobstart { 'jupytext', '--sync', pyfile }
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -201,6 +228,7 @@ rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
+
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
@@ -227,6 +255,13 @@ require('lazy').setup({
   -- options to `gitsigns.nvim`.
   --
   -- See `:help gitsigns` to understand what the configuration keys do
+
+  -- Adding plugin for comment in nvim
+  {
+    'numToStr/Comment.nvim',
+    opts = {},
+  },
+
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -359,6 +394,19 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+
+      -- adding keymap for comment nvim
+
+      -- Comment keymaps
+      require('Comment').setup {
+        toggler = {
+          line = '<leader>/', -- leader + / for line comments
+        },
+        opleader = {
+          line = '<leader>/', -- leader + / in visual mode for block commenting
+        },
+      }
+
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
